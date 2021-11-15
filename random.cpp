@@ -23,7 +23,6 @@ void replaceIndex(unordered_set<int> &frameSet, vector<int> &pageSeq, int index)
         }
         i++;
     }
-    cout << endl;
 }
 
 void printSet(unordered_set<int> &frameSet, int page, bool col)
