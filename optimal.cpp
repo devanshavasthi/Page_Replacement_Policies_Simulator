@@ -1,3 +1,9 @@
+/*
+ * Name: optimal.cpp
+ * Description: Implementation of the Optimal Page Replacement Algorithm
+ * Author: devanshavasthi
+ */
+
 #include <iostream>
 #include <vector>
 #include <unordered_set>
