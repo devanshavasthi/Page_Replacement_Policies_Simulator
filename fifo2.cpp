@@ -12,11 +12,6 @@ using namespace std;
 
 FILE *file;
 
-void replaceIndex(unordered_set<int> &frameSet, vector<int> &pageSeq, int index)
-{
-    //todo
-}
-
 void printSet(unordered_set<int> &frameSet, int page, bool col)
 {
     unordered_set<int>::iterator it;
@@ -35,35 +30,53 @@ void printSet(unordered_set<int> &frameSet, int page, bool col)
 
 void FIFO2Replacement(int frames, vector<int> &pageSeq)
 {
-    unordered_set<int> frameSet;
-    int hits = 0, misses = 0;
-    bool col;
-    int pageSeqSize = pageSeq.size();
-    for (int i = 0; i < pageSeqSize; i++)
+    int chanceBit[2][frames];
+    int frameptr = 0, pageptr = 0, misses = 0, flag = 0, load = 0;
+    for (int i = 0; i < 2; i++)
+        for (int j = 0; j < frames; j++)
+            chanceBit[i][j] = -7;
+    int pageSeqsize = pageSeq.size();
+    while (pageptr < pageSeqsize)
     {
-        int frameSetSize = frameSet.size();
-        if (frameSetSize < frames)
+        for (int i = 0; i < frames; i++)
         {
-            col = false;
-            misses++;
-            frameSet.insert(pageSeq[i]);
+            if (chanceBit[0][i] == pageSeq[pageptr])
+            {
+                chanceBit[1][i] = 1;
+                flag = 1;
+            }
         }
-        else if (frameSet.find(pageSeq[i]) != frameSet.end())
+        if (flag == 0)
         {
-            hits++;
-            col = true;
+            do
+            {
+                if (chanceBit[1][frameptr] == 0)
+                {
+                    chanceBit[0][frameptr] = pageSeq[pageptr];
+                    chanceBit[1][frameptr] = 0;
+                    misses++;
+                    load = 1;
+                }
+                else
+                    chanceBit[1][frameptr] = 0;
+                frameptr++;
+                if (frameptr == frames)
+                    frameptr = 0;
+            } while (load != 1);
         }
-        else
-        {
-            col = false;
-            misses++;
-            replaceIndex(frameSet, pageSeq, i);
-        }
-        cout << "\033[0;37m" << pageSeq[i] << "--->";
-        printSet(frameSet, pageSeq[i], col);
+        unordered_set<int> frameSet;
+        for (int i = 0; i < frames; i++)
+            if (chanceBit[0][i] != -7)
+                frameSet.insert(chanceBit[0][i]);
+        cout << "\033[0;37m" << pageSeq[pageptr] << "--->";
+        printSet(frameSet, pageSeq[pageptr], flag);
         printf("\n\n");
+        flag = 0;
+        load = 0;
+        pageptr++;
     }
     printf("\n");
+    int hits = pageSeqsize - misses;
     printf("Hits: %d\n", hits);
     printf("Misses: %d\n", misses);
     printf("Hit Ratio: %.2f\n", (float)hits / (float)(hits + misses));
