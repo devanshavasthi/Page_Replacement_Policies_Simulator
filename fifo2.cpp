@@ -34,11 +34,15 @@ void FIFO2Replacement(int frames, vector<int> &pageSeq)
     int chanceBit[2][frames];
     int frameptr = 0, pageptr = 0, misses = 0, flag = 0, load = 0;
 
-    // initialize all chance bits to a negative number (to allow for 0's
+    // initialize all frames to a negative number (to allow for 0's
     // to be used in input)
-    for (int i = 0; i < 2; i++)
+    for (int i = 0; i < 1; i++)
         for (int j = 0; j < frames; j++)
             chanceBit[i][j] = -7;
+    // Set all chance bits to 0
+    for (int i = 1; i < 2; i++)
+        for (int j = 0; j < frames; j++)
+            chanceBit[i][j] = 0;
 
     int pageSeqsize = pageSeq.size();
     while (pageptr < pageSeqsize)
