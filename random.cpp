@@ -11,6 +11,7 @@ using namespace std;
 
 void replaceIndex(unordered_set<int> &frameSet, vector<int> &pageSeq, int index)
 {
+    srand(time(0));
     int randomIndex = rand() % frameSet.size();
     int i = 0;
     for (unordered_set<int>::iterator it = frameSet.begin(); it != frameSet.end(); ++it)
