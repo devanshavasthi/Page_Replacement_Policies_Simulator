@@ -107,28 +107,26 @@ void FIFO2Replacement(int frames, vector<int> &pageSeq)
 
 int main()
 {
-    int frames, i = 0;
-    int pages[99];
-
-    printf("Enter the number of frames: ");
-    scanf("%d", &frames);
-    if (frames < 1 || frames > 99)
-    {
-        printf("The number of frames should be between 1 and 99.\n");
-        return 0;
-    }
-
     file = fopen("pages.txt", "r");
-    while (fscanf(file, "%d", &pages[i]) != EOF)
+    if (file == NULL)
     {
-        i++;
-        if (i == 99)
-            break;
+        printf("Error opening file\n");
+        return 1;
     }
+    int frames = 0;
+    fscanf(file, "%d", &frames);
+    vector<int> pageSeq;
+    int page;
+    while (fscanf(file, "%d", &page) != EOF)
+        pageSeq.push_back(page);
     fclose(file);
-    printf("\n");
 
-    vector<int> pageSeq(pages, pages + i);
+    if (frames < 1)
+    {
+        printf("Error: Number of frames must atleast equal 1\n");
+        return 1;
+    }
+
     FIFO2Replacement(frames, pageSeq);
     return 0;
 }
