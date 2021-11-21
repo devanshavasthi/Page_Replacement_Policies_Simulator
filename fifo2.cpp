@@ -8,6 +8,7 @@
 #include <iostream>
 #include <vector>
 #include <unordered_set>
+#include <climits>
 using namespace std;
 
 FILE *file;
@@ -38,7 +39,7 @@ void FIFO2Replacement(int frames, vector<int> &pageSeq)
     // to be used in input)
     for (int i = 0; i < 1; i++)
         for (int j = 0; j < frames; j++)
-            chanceBit[i][j] = -7;
+            chanceBit[i][j] = INT_MIN;
     // Set all chance bits to 0
     for (int i = 1; i < 2; i++)
         for (int j = 0; j < frames; j++)
@@ -85,7 +86,7 @@ void FIFO2Replacement(int frames, vector<int> &pageSeq)
         // Adding frames to a set to print later
         unordered_set<int> frameSet;
         for (int i = 0; i < frames; i++)
-            if (chanceBit[0][i] != -7)
+            if (chanceBit[0][i] != INT_MIN)
                 frameSet.insert(chanceBit[0][i]);
 
         // Print the set
