@@ -75,6 +75,7 @@ void randomReplacement(int frames, vector<int> &pageSeq)
     printf("\n");
     printf("Hits: %d\n", hits);
     printf("Misses: %d\n", misses);
+    printf("Swaps: %d\n", misses - frames);
     printf("Hit Ratio: %.2f\n", (float)hits / (float)(hits + misses));
 }
 
