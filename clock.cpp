@@ -4,10 +4,7 @@
  * Author: devanshavasthi
  */
 
-#include <iostream>
-#include <vector>
-// #include <unordered_set>
-using namespace std;
+#include "policies.h"
 
 int hits = 0, misses = 0;
 int hand = 0;
@@ -45,7 +42,7 @@ void printSet(vector <pair<int, bool>> &fr, int page, bool col){
     cout<<"\033[0;37m|";
 }
 
-void clockReplacement(int frames, vector <int> &pageSeq){
+pair<int, float> clockReplacement(int frames, vector <int> &pageSeq, bool showContent){
     vector <pair<int, bool>> fr;
     bool col;
     int pageSeqSize = pageSeq.size();
@@ -64,21 +61,27 @@ void clockReplacement(int frames, vector <int> &pageSeq){
             col = false;
             indexToReplace(fr, frames, pageSeq, i);
         }
-        cout << pageSeq[i] << "--->";
-        printSet(fr, pageSeq[i], col);
-        cout << endl << endl;
+        if(showContent){
+            cout << pageSeq[i] << "--->";
+            printSet(fr, pageSeq[i], col);
+            cout << endl << endl;
+        }
     }
-    cout << "Hits: " << hits << endl;
-    cout << "Misses: " << misses << endl;
+    float Hit_Ratio = (float)hits / (float)(hits + misses);
+    if(showContent){        
+        cout << endl;
+        printf("Hit Ratio: %.2f\n", Hit_Ratio);
+    }
+    return {frames, Hit_Ratio};
 }
 
-int main(){
-    int frames;
-    cin >> frames;
-    if (frames == 0)
-        return 0;
-    vector <int> pageSeq = {0, 4, 1, 4, 2, 4, 3, 4, 2, 4, 0, 4, 1, 4, 2, 4, 3, 4};
-    cout << endl;
-    clockReplacement(frames, pageSeq);
-    return 0;
-}
+// int main(){
+//     int frames;
+//     cin >> frames;
+//     if (frames == 0)
+//         return 0;
+//     vector <int> pageSeq = {0, 4, 1, 4, 2, 4, 3, 4, 2, 4, 0, 4, 1, 4, 2, 4, 3, 4};
+//     cout << endl;
+//     clockReplacement(frames, pageSeq);
+//     return 0;
+// }
