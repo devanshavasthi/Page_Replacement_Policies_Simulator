@@ -1,7 +1,7 @@
 /*
- * Name: fifo2.cpp
- * Description: Implementation of the First-In First Out with 2nd chance Page
- *              Frame Replacement Algorithm.
+ * Name: wsclock.cpp
+ * Description: Implementation of the Working Set Clock Frame Replacement
+ *              Algorithm.
  * Author: kyscg
  */
 
@@ -9,9 +9,21 @@
 #include <vector>
 #include <unordered_set>
 #include <climits>
+#include <sys/time.h>
 using namespace std;
 
 FILE *file;
+
+// Threshold for WSClock
+unsigned long tt = 100;
+
+unsigned long getCurrentTime()
+{
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+
+    return tv.tv_sec / 1000000 + tv.tv_usec;
+}
 
 void printSet(unordered_set<int> &frameSet, int page, bool col)
 {
@@ -29,10 +41,9 @@ void printSet(unordered_set<int> &frameSet, int page, bool col)
     cout << "\033[0;37m|";
 }
 
-void FIFO2Replacement(int frames, vector<int> &pageSeq)
+void wsclock(int frames, vector<int> &pageSeq)
 {
-    // set toggle bits for each frame to count 2nd chance
-    int chanceBit[2][frames];
+    int chanceBit[3][frames];
     int frameptr = 0, pageptr = 0, misses = 0, flag = 0, load = 0;
 
     // initialize all frames to a negative number (to allow for 0's
@@ -44,17 +55,23 @@ void FIFO2Replacement(int frames, vector<int> &pageSeq)
     for (int i = 1; i < 2; i++)
         for (int j = 0; j < frames; j++)
             chanceBit[i][j] = 0;
+    // Set all access time bits to 0
+    for (int i = 2; i < 3; i++)
+        for (int j = 0; j < frames; j++)
+            chanceBit[i][j] = 0;
 
     int pageSeqsize = pageSeq.size();
     while (pageptr < pageSeqsize)
     {
         // Check if the page is already in the frame set and set the toggle
-        // bit to 1 if it is.
+        // bit to 1 if it is. Also set the last access time.
         for (int i = 0; i < frames; i++)
         {
             if (chanceBit[0][i] == pageSeq[pageptr])
             {
                 chanceBit[1][i] = 1;
+                // Set access time bit to current time
+                chanceBit[2][i] = getCurrentTime();
                 flag = 1;
             }
         }
@@ -67,14 +84,34 @@ void FIFO2Replacement(int frames, vector<int> &pageSeq)
                 // Loads the page into the frames and sets the toggle bit to 0.
                 if (chanceBit[1][frameptr] == 0)
                 {
-                    chanceBit[0][frameptr] = pageSeq[pageptr];
-                    chanceBit[1][frameptr] = 0;
-                    misses++;
-                    load = 1;
+                    if (pageptr > frames - 1)
+                    {
+                        // We check if the page age has crossed the threshold
+                        // and if so, we load the page into the frame.
+                        unsigned long timern = getCurrentTime();
+                        if (timern - chanceBit[2][frameptr] > tt)
+                        {
+                            chanceBit[0][frameptr] = pageSeq[pageptr];
+                            chanceBit[1][frameptr] = 0;
+                            misses++;
+                            load = 1;
+                        }
+                    }
+                    else
+                    {
+                        chanceBit[0][frameptr] = pageSeq[pageptr];
+                        chanceBit[1][frameptr] = 0;
+                        misses++;
+                        load = 1;
+                    }
                 }
-                // Invoke a chance and flip the bit back to 0
+                // Invoke a chance and flip the bit back to 0. Also set the
+                // access time.
                 else
+                {
                     chanceBit[1][frameptr] = 0;
+                    chanceBit[2][frameptr] = getCurrentTime();
+                }
                 frameptr++;
 
                 // Cycle back to the beginning
@@ -129,6 +166,6 @@ int main()
         return 1;
     }
 
-    FIFO2Replacement(frames, pageSeq);
+    wsclock(frames, pageSeq);
     return 0;
 }
