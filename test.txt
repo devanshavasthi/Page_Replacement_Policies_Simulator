@@ -1,0 +1,1 @@
+g++ main.cpp random.cpp optimal.cpp clock.cpp fifo2.cpp Fifo.cpp LRU.cpp NFU.cpp NRU.cpp wsclock.cpp Workingset.cpp Aging.cpp

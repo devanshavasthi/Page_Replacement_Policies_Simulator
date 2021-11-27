@@ -1,25 +1,26 @@
+#include "policies.h"
 #include <bits/stdc++.h>
 #include <iostream>
 
 using namespace std;
 
 
-void print_stuff(vector<int> &vec, int hit, int miss, int num)
+void printSet(vector<int> &vec, int hit, int miss, int num)
 {
     for(int i=0;i<vec.size();i++)
     {
         if(vec[i] == num && hit == 1)
         {
-            cout<<"\033[0;37m|"<<"\033[0;32m"<<vec[i]<<" ";
+            cout<<"\033[0;37m|"<<"\033[0;32m"<<vec[i];
         }
 
         else if(vec[i] == num && miss ==1)
         {
-            cout<<"\033[0;37m|"<<"\033[0;31m"<<vec[i]<<" ";
+            cout<<"\033[0;37m|"<<"\033[0;31m"<<vec[i];
         }
 
         else
-        cout<<"\033[0;37m|"<<"\033[0;37m"<<vec[i]<<" ";
+        cout<<"\033[0;37m|"<<"\033[0;37m"<<vec[i];
     }
     cout<<"\033[0;37m|";
 }
@@ -44,17 +45,39 @@ struct bits
     int modified;
 };
 
-void nru(int frames, vector<int> &pages_input)
+pair<int,float> nru(int frames, vector<int> &pages_input, bool toshowContent)
 {
+    int n = frames;
+    unordered_map<int,int> modify;
+
+    vector<int> vec1(pages_input.size());
+
+    for(int i=0;i<pages_input.size();i++)
+    {
+        if(pages_input[i]%2 == 0)
+        vec1[i] = 0;
+        else
+        vec1[i] = 1;
+    }
+
+    for(int i=0;i<pages_input.size();i++)
+    {
+        modify[pages_input[i]] = vec1[i];
+    }
     
+    // for(int i=0;i<pages_input.size();i++)
+    // cout<<modify[pages_input[i]]<<" ";
+
     unordered_map<int,bits> nru_map;
     // unordered_map<int, int> frame;
     vector<int> vec;
     vector<int> p_vec;
     int page_faluts=0;
-    float Hit_ratio;
-    float Miss_ratio;
+    // float Hit_ratio;
+    // float Miss_ratio;
     int hit,miss;
+    // int hit2=0,miss2=0;
+    int hit2=0;
 
     for(int i=0;i<pages_input.size();i++)
     {
@@ -69,6 +92,7 @@ void nru(int frames, vector<int> &pages_input)
             vec.push_back(pages_input[i]);
             page_faluts++;
             p_vec.push_back(pages_input[i]);
+            // miss2++;
             miss=1;
         }
 
@@ -78,14 +102,14 @@ void nru(int frames, vector<int> &pages_input)
             int x,flag=0,ind,flag2=0;
             for(int j=0;j<vec.size();j++) // iterate over vector
             {
-                if(nru_map[vec[j]].modified == 0 && nru_map[vec[j]].reference == 0)
+                if(modify[vec[j]] == 0 && nru_map[vec[j]].reference == 0)
                 {
                     x = vec[j];
                     ind = j;
                     break;
                 }
 
-                else if(nru_map[vec[j]].modified == 1 && nru_map[vec[j]].reference == 0 && flag==0)
+                else if(modify[vec[j]] == 1 && nru_map[vec[j]].reference == 0 && flag==0)
                 {
                     x = vec[j];
                     flag =1;
@@ -93,7 +117,7 @@ void nru(int frames, vector<int> &pages_input)
                     //break;
                 }
 
-                else if(nru_map[vec[j]].modified == 0 && nru_map[vec[j]].reference == 1 && flag == 0 && flag2==0)
+                else if(modify[vec[j]] == 0 && nru_map[vec[j]].reference == 1 && flag == 0 && flag2==0)
                 {
                     x = vec[j];
                     ind = j;
@@ -124,6 +148,7 @@ void nru(int frames, vector<int> &pages_input)
 
         else
         {
+            hit2++;
             hit=1;
             nru_map[pages_input[i]].reference = 1;
             for(int ind=0;ind<vec.size();ind++)
@@ -137,30 +162,48 @@ void nru(int frames, vector<int> &pages_input)
             }
         }
 
+        // cout<<pages_input[i]<<"--->";
+        // printSet(p_vec,hit,miss,pages_input[i]);
+        // cout<<endl<<endl;
+        if(toshowContent)
+        {
         cout<<pages_input[i]<<"--->";
-        print_stuff(p_vec,hit,miss,pages_input[i]);
+        printSet(p_vec,hit,miss,pages_input[i]);
         cout<<endl<<endl;
+        }
 
     }
 
-    Miss_ratio = (float)page_faluts/(float)pages_input.size();
-    Hit_ratio = 1.0-Miss_ratio;
-    cout<<"Page fault: "<<page_faluts<<endl;
-    cout<<"Hit ratio: "<<fixed << setprecision(2)<<Hit_ratio<<endl;
-    cout<<"Miss ratio: "<<fixed << setprecision(2)<<Miss_ratio<<endl;
+    // Miss_ratio = (float)page_faluts/(float)pages_input.size();
+    // Hit_ratio = 1.0-Miss_ratio;
+    // cout<<"Page fault: "<<page_faluts<<endl;
+    // cout<<"Hit ratio: "<<fixed << setprecision(2)<<Hit_ratio<<endl;
+    // cout<<"Miss ratio: "<<fixed << setprecision(2)<<Miss_ratio<<endl;
+    float Hit_Ratio = (float)hit2/(float)(hit2+page_faluts);
+    if(toshowContent)
+    {
+        cout<<endl;
+        printf("Hit Ratio: %.2f\n", Hit_Ratio);
+    }
+
+    // float Hit_Ratio = (float)hit/(float)(hit+miss);
+    // printf("Hit Ratio: %.2f\n", Hit_Ratio);
+    // cout<<page_fault;
+    return {n, Hit_Ratio};
 }
 
-int main()
-{
-    int frames,num_pages;
-    cout<<"Frames: ";
-    cin>>frames;
-    cout<<"Number of pages: ";
-    cin>>num_pages;
-    vector<int> pages_input(num_pages);
+// int main()
+// {
+//     int frames,num_pages;
+//     cout<<"Frames: ";
+//     cin>>frames;
+//     cout<<"Number of pages: ";
+//     cin>>num_pages;
+//     vector<int> pages_input(num_pages);
     
-    for(int i=0;i<num_pages;i++)
-    cin>>pages_input[i];
+//     for(int i=0;i<num_pages;i++)
+//     cin>>pages_input[i];
 
-    nru(frames, pages_input);
-}
+//     pair<int,float> x = nru(frames, pages_input,false);
+//     cout<<x.second;
+// }

@@ -4,10 +4,7 @@
  * Author: kyscg
  */
 
-#include <iostream>
-#include <vector>
-#include <unordered_set>
-using namespace std;
+#include "policies.h"
 
 void replaceIndex(unordered_set<int> &frameSet, vector<int> &pageSeq, int index)
 {
@@ -26,23 +23,7 @@ void replaceIndex(unordered_set<int> &frameSet, vector<int> &pageSeq, int index)
     }
 }
 
-void printSet(unordered_set<int> &frameSet, int page, bool col)
-{
-    unordered_set<int>::iterator it;
-    for (it = frameSet.begin(); it != frameSet.end(); it++)
-        if (page == *it and col)
-            cout << "\033[0;37m|"
-                 << "\033[0;32m" << (*it);
-        else if (page == *it)
-            cout << "\033[0;37m|"
-                 << "\033[0;31m" << (*it);
-        else
-            cout << "\033[0;37m|"
-                 << "\033[0;37m" << (*it);
-    cout << "\033[0;37m|";
-}
-
-void randomReplacement(int frames, vector<int> &pageSeq)
+pair<int, float> randomReplacement(int frames, vector<int> &pageSeq, bool showContent)
 {
     unordered_set<int> frameSet;
     int hits = 0, misses = 0;
@@ -68,29 +49,35 @@ void randomReplacement(int frames, vector<int> &pageSeq)
             misses++;
             replaceIndex(frameSet, pageSeq, i);
         }
-        cout << "\033[0;37m" << pageSeq[i] << "--->";
-        printSet(frameSet, pageSeq[i], col);
-        printf("\n\n");
+        if(showContent){
+            cout << "\033[0;37m" << pageSeq[i] << "--->";
+            printSet(frameSet, pageSeq[i], col);
+            printf("\n\n");
+        }
     }
-    printf("\n");
-    printf("Hits: %d\n", hits);
-    printf("Misses: %d\n", misses);
-    printf("Swaps: %d\n", misses - frames);
-    printf("Hit Ratio: %.2f\n", (float)hits / (float)(hits + misses));
+    float Hit_Ratio = (float)hits / (float)(hits + misses);;
+    if(showContent){
+        printf("\n");
+        // printf("Hits: %d\n", hits);
+        // printf("Misses: %d\n", misses);
+        // printf("Swaps: %d\n", misses - frames);
+        printf("Hit Ratio: %.2f\n", Hit_Ratio);
+    }
+    return {frames, Hit_Ratio};
 }
 
-int main()
-{
-    int frames;
-    printf("Enter the number of frames: ");
-    scanf("%d", &frames);
-    if (frames < 1)
-    {
-        printf("The number of frames should be greater than 1\n");
-        return 0;
-    }
-    vector<int> pageSeq = {1, 2, 3, 4, 2, 1, 5, 6, 2, 1, 2, 3, 7, 6, 3, 2, 1, 2, 3, 6};
-    printf("\n");
-    randomReplacement(frames, pageSeq);
-    return 0;
-}
+// int main()
+// {
+//     int frames;
+//     printf("Enter the number of frames: ");
+//     scanf("%d", &frames);
+//     if (frames < 1)
+//     {
+//         printf("The number of frames should be greater than 1\n");
+//         return 0;
+//     }
+//     vector<int> pageSeq = {1, 2, 3, 4, 2, 1, 5, 6, 2, 1, 2, 3, 7, 6, 3, 2, 1, 2, 3, 6};
+//     printf("\n");
+//     randomReplacement(frames, pageSeq);
+//     return 0;
+// }

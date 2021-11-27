@@ -1,3 +1,4 @@
+#include "policies.h"
 #include<iostream>
 #include<bits/stdc++.h>
 
@@ -15,28 +16,28 @@ void replace_frame(int to_replace,int with,vector<int> &s)
 }
 
 
-void print_stuff(vector<int> &vec, int hit, int miss, int num)
-{
-    for(int i=0;i<vec.size();i++)
-    {
-        if(vec[i] == num && hit == 1)
-        {
-            cout<<"\033[0;37m|"<<"\033[0;32m"<<vec[i]<<" ";
-        }
+// void printSet(vector<int> &vec, int hit, int miss, int num)
+// {
+//     for(int i=0;i<vec.size();i++)
+//     {
+//         if(vec[i] == num && hit == 1)
+//         {
+//             cout<<"\033[0;37m|"<<"\033[0;32m"<<vec[i]<<" ";
+//         }
 
-        else if(vec[i] == num && miss ==1)
-        {
-            cout<<"\033[0;37m|"<<"\033[0;31m"<<vec[i]<<" ";
-        }
+//         else if(vec[i] == num && miss ==1)
+//         {
+//             cout<<"\033[0;37m|"<<"\033[0;31m"<<vec[i]<<" ";
+//         }
 
-        else
-        cout<<"\033[0;37m|"<<"\033[0;37m"<<vec[i]<<" ";
-    }
-    cout<<"\033[0;37m|";
-}
+//         else
+//         cout<<"\033[0;37m|"<<"\033[0;37m"<<vec[i]<<" ";
+//     }
+//     cout<<"\033[0;37m|";
+// }
 
 
-void lru(vector<int> &v, int frames)
+pair<int,float> lru(vector<int> &v, int frames, bool showContent)
 {
     unordered_map<int,int> lrused;
     // unordered_set<int>  pages;
@@ -98,22 +99,39 @@ void lru(vector<int> &v, int frames)
             }
         }
 
+        // cout<<v[index]<<"--->";
+        // print_stuff(to_print,hit,miss,v[index]);
+        // cout<<endl<<endl;
+        if(showContent)
+        {
         cout<<v[index]<<"--->";
-        print_stuff(to_print,hit,miss,v[index]);
+        printSet(to_print,hit,miss,v[index]);
         cout<<endl<<endl;
+        }
         index++;
     }
 
-    cout<<"Page Faults: "<<page_fault;
+    int hit2 = v.size() - page_fault;
+    float Hit_Ratio = (float)hit2/(float)(hit2+page_fault);
+    if(showContent)
+    {
+        cout<<endl;
+        printf("Hit Ratio: %.2f\n", Hit_Ratio);
+    }
+
+    // float Hit_Ratio = (float)hit/(float)(hit+miss);
+    // printf("Hit Ratio: %.2f\n", Hit_Ratio);
+    // cout<<page_fault;
+    return {frames, Hit_Ratio};
 }
 
 
 
-int main()
-{
-    vector<int> v = {1,2,3,4,2,1,5,6,2,1,2,3,7,6,3,2,1,2,3,6};
-    int frames;
-    cout<<"Frames: ";
-    cin>>frames;
-    lru(v,frames);
-}
+// int main()
+// {
+//     vector<int> v = {1,2,3,4,2,1,5,6,2,1,2,3,7,6,3,2,1,2,3,6};
+//     int frames;
+//     cout<<"Frames: ";
+//     cin>>frames;
+//     pair<int,int>x = lru(v,frames,false);
+// }

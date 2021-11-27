@@ -4,10 +4,7 @@
  * Author: devanshavasthi
  */
 
-#include <iostream>
-#include <vector>
-#include <unordered_set>
-using namespace std;
+#include "policies.h"
 
 void indexToReplace(unordered_set<int> &fr, vector<int> &pageSeq, int index){
     // this will return the index of frame that has to become the target.
@@ -49,7 +46,7 @@ void printSet(unordered_set<int> &fr, int page, bool col){
     cout<<"\033[0;37m|";
 }
 
-void optimalReplacement(int frames, vector<int> &pageSeq){
+pair<int, float> optimalReplacement(int frames, vector<int> &pageSeq, bool showContent){
     // creating the set for frames.
     // this will give accesing time of O(1).
     unordered_set<int> fr(frames);
@@ -75,21 +72,27 @@ void optimalReplacement(int frames, vector<int> &pageSeq){
             miss++;
             indexToReplace(fr, pageSeq, i);
         }
-        cout<<pageSeq[i]<<"--->";
-        printSet(fr,pageSeq[i],col);
-        cout<<endl<<endl;
+        if(showContent){    
+            cout<<pageSeq[i]<<"--->";
+            printSet(fr,pageSeq[i],col);
+            cout<<endl<<endl;
+        }
     }
-    cout<<"Hits: "<<hit<<endl;
-    cout<<"Misses: "<<miss<<endl;
+    float Hit_Ratio = (float)hit / (float)(hit + miss);;
+    if(showContent){
+        cout << endl;
+        printf("Hit Ratio: %.2f\n", Hit_Ratio);
+    }
+    return {frames, Hit_Ratio};
 }
 
-int main(){
-    int frames;
-    cin>>frames;
-    if(frames == 0)
-        return 0;
-    vector<int> pageSeq = {1,2,3,4,2,1,5,6,2,1,2,3,7,6,3,2,1,2,3,6};
-    cout<<endl;
-    optimalReplacement(frames,pageSeq);
-    return 0;
-}
+// int main(){
+//     int frames;
+//     cin>>frames;
+//     if(frames == 0)
+//         return 0;
+//     vector<int> pageSeq = {1,2,3,4,2,1,5,6,2,1,2,3,7,6,3,2,1,2,3,6};
+//     cout<<endl;
+//     optimalReplacement(frames,pageSeq);
+//     return 0;
+// }

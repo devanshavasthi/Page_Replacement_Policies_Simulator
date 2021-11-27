@@ -3,41 +3,46 @@
  * Description: Implementation of the first in first out Page Replacement Algorithm
  * Author: Kaustuv
  */
+#include "policies.h"
 #include<iostream>
 #include<queue>
 #include<unordered_map>
 using namespace std;
-//implement fifo page replacement algorithm
-void printQueue(queue<int>page)
-{
-    while (!page.empty())
-    {
-        cout<<page.front()<<" ";
-        page.pop();
-    }
-    
+
+void printSet(unordered_map<int,string>&fr, int page, bool col){
+   // unordered_map<int,string> :: iterator it;
+    for(auto it : fr)
+        if(page == it.first and col)
+            cout<<"\033[0;37m|"<<"\033[0;32m"<<(it.first);
+        else if(page == it.first)
+            cout<<"\033[0;37m|"<<"\033[0;31m"<<(it.first);
+        else
+            cout<<"\033[0;37m|"<<"\033[0;37m"<<(it.first);
+    cout<<"\033[0;37m|";
 }
-int fifoPagereplacement(int frames,vector<int>&pageSeq)//number of frames,pages
+pair<int,float> fifoPagereplacement(int frames,vector<int>&pageSeq,bool showContent)//number of frames,pages
 {
     //create a queue and take pages from the front
     //the time complexity of the code is O(n)
     queue<int> page;
-    int pageFault=0;
+    int miss=0;
+    int hit=0;
     unordered_map<int,string> umap;
     int temp;//current pageNumber
-    // if(frames==0)//if number of frames=0
-    //     return pageSeq;
+    bool col=false;
     for(int p=0;p<pageSeq.size();p++)
     {
         //cin>>temp;
         temp=pageSeq[p];
         if(umap.find(temp)!=umap.end())//if it finds
         {
-            //HIT
+            hit++;
+            col=true;
         }
         else//if it doesnot find
         {
-            pageFault++;
+            miss++;
+            col=false;
             umap[temp] = "pres";
             //page.push(temp);
             if(page.size()!=frames)
@@ -51,66 +56,19 @@ int fifoPagereplacement(int frames,vector<int>&pageSeq)//number of frames,pages
                 page.push(temp);//then push new page to the end of the queue
             }
         }
-        cout<<temp<<"--->";
-        printQueue(page);
-        cout<<endl;
+        if(showContent)
+        {
+            cout<<temp<<"--->";
+            printSet(umap,temp,col);
+            cout<<endl<<endl;
+        }
     }
-   return pageFault;
-// int fifoPagereplacement(int frames,int pageSeq)//number of frames,pages
-// {
-//     //create a queue and take pages from the front
-//     //the time complexity of the code is O(n)
-//     queue<int> page;
-//     int pageFault=0;
-//     unordered_map<int,string> umap;
-//     int temp;//current pageNumber
-//     if(frames==0)//if number of frames=0
-//         return pageSeq;
-//     for(int p=0;p<pageSeq;p++)
-//     {
-//         cin>>temp;
-//         if(umap.find(temp)!=umap.end())//if it finds
-//         {
-//             //HIT
-//         }
-//         else//if it doesnot find
-//         {
-//             pageFault++;
-//             umap[temp] = "pres";
-//             //page.push(temp);
-//             if(page.size()!=frames)
-//             {
-//                 page.push(temp);//push to the end of the queue
-//             }
-//             else{
-//                 //first delete the ele from the map
-//                 umap.erase(page.front());
-//                 page.pop();//first pop the oldest page
-//                 page.push(temp);//then push new page to the end of the queue
-//             }
-//         }
-//         cout<<temp<<"--->";
-//         printQueue(page);
-//         cout<<endl;
-//     }
-//    return pageFault;
-
-  
-
-}
-int main()
-{
-    int frames,pageSeq;
-    cin>>frames>>pageSeq;//4 21
-    //cin>>frames;
-    vector<int>pages(pageSeq);//={1,2,3,4,2,1,5,6,2,1,2,3,7,6,3,2,1,2,3,6};
-    int temp;
-    for(int i=0;i<pageSeq;i++)
+    float Hit_Ratio = (float)hit/(float)(hit+miss);
+    if(showContent)
     {
-    	cin>>temp;
-    	pages[i] = temp;
+        cout<<endl;
+        printf("Hit Ratio: %.2f\n", Hit_Ratio);
     }
-    //int numPageFaluts = fifoPagereplacement(frames,pageSeq);
-    int numPageFaluts = fifoPagereplacement(frames,pages);
-    cout<<numPageFaluts<<endl;
+    return {frames,Hit_Ratio};
 }
+       

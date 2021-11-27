@@ -5,14 +5,12 @@
  * Author: kyscg
  */
 
-#include <iostream>
-#include <vector>
-#include <unordered_set>
+#include "policies.h"
 #include <climits>
 #include <sys/time.h>
 using namespace std;
 
-FILE *file;
+// FILE *file;
 
 // Threshold for WSClock
 unsigned long tt = 100;
@@ -25,23 +23,23 @@ unsigned long getCurrentTime()
     return tv.tv_sec / 1000000 + tv.tv_usec;
 }
 
-void printSet(unordered_set<int> &frameSet, int page, bool col)
-{
-    unordered_set<int>::iterator it;
-    for (it = frameSet.begin(); it != frameSet.end(); it++)
-        if (page == *it and col)
-            cout << "\033[0;37m|"
-                 << "\033[0;32m" << (*it);
-        else if (page == *it)
-            cout << "\033[0;37m|"
-                 << "\033[0;31m" << (*it);
-        else
-            cout << "\033[0;37m|"
-                 << "\033[0;37m" << (*it);
-    cout << "\033[0;37m|";
-}
+// void printSet(unordered_set<int> &frameSet, int page, bool col)
+// {
+//     unordered_set<int>::iterator it;
+//     for (it = frameSet.begin(); it != frameSet.end(); it++)
+//         if (page == *it and col)
+//             cout << "\033[0;37m|"
+//                  << "\033[0;32m" << (*it);
+//         else if (page == *it)
+//             cout << "\033[0;37m|"
+//                  << "\033[0;31m" << (*it);
+//         else
+//             cout << "\033[0;37m|"
+//                  << "\033[0;37m" << (*it);
+//     cout << "\033[0;37m|";
+// }
 
-void wsclock(int frames, vector<int> &pageSeq)
+pair<int, float> wsclock(int frames, vector<int> &pageSeq, bool showContent)
 {
     int chanceBit[3][frames];
     int frameptr = 0, pageptr = 0, misses = 0, flag = 0, load = 0;
@@ -127,45 +125,51 @@ void wsclock(int frames, vector<int> &pageSeq)
                 frameSet.insert(chanceBit[0][i]);
 
         // Print the set
-        cout << "\033[0;37m" << pageSeq[pageptr] << "--->";
-        printSet(frameSet, pageSeq[pageptr], flag);
-        printf("\n\n");
+        if(showContent){
+            cout << "\033[0;37m" << pageSeq[pageptr] << "--->";
+            printSet(frameSet, pageSeq[pageptr], flag);
+            printf("\n\n");
+        }
         flag = 0;
         load = 0;
         pageptr++;
     }
 
     // Stats
-    printf("\n");
     int hits = pageSeqsize - misses;
-    printf("Hits: %d\n", hits);
-    printf("Misses: %d\n", misses);
-    printf("Swaps: %d\n", misses - frames);
-    printf("Hit Ratio: %.2f\n", (float)hits / (float)(hits + misses));
+    float Hit_Ratio = (float)hits / (float)(hits + misses);
+    if(showContent){
+        printf("\n");
+        // printf("Hits: %d\n", hits);
+        // printf("Misses: %d\n", misses);
+        // printf("Swaps: %d\n", misses - frames);
+        printf("Hit Ratio: %.2f\n", Hit_Ratio);
+    }
+    return {frames, Hit_Ratio};
 }
 
-int main()
-{
-    file = fopen("pages.txt", "r");
-    if (file == NULL)
-    {
-        printf("Error opening file\n");
-        return 1;
-    }
-    int frames = 0;
-    fscanf(file, "%d", &frames);
-    vector<int> pageSeq;
-    int page;
-    while (fscanf(file, "%d", &page) != EOF)
-        pageSeq.push_back(page);
-    fclose(file);
+// int main()
+// {
+//     file = fopen("pages.txt", "r");
+//     if (file == NULL)
+//     {
+//         printf("Error opening file\n");
+//         return 1;
+//     }
+//     int frames = 0;
+//     fscanf(file, "%d", &frames);
+//     vector<int> pageSeq;
+//     int page;
+//     while (fscanf(file, "%d", &page) != EOF)
+//         pageSeq.push_back(page);
+//     fclose(file);
 
-    if (frames < 1)
-    {
-        printf("Error: Number of frames must atleast equal 1\n");
-        return 1;
-    }
+//     if (frames < 1)
+//     {
+//         printf("Error: Number of frames must atleast equal 1\n");
+//         return 1;
+//     }
 
-    wsclock(frames, pageSeq);
-    return 0;
-}
+//     wsclock(frames, pageSeq);
+//     return 0;
+// }

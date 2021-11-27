@@ -5,83 +5,101 @@
  */
 
 #include "policies.h"
+#include <climits>
 
-int hits = 0, misses = 0;
-int hand = 0;
+// void printSet(unordered_set<int> &frameSet, int page, bool col)
+// {
+//     unordered_set<int>::iterator it;
+//     for (it = frameSet.begin(); it != frameSet.end(); it++)
+//         if (page == *it and col)
+//             cout << "\033[0;37m|"
+//                  << "\033[0;32m" << (*it);
+//         else if (page == *it)
+//             cout << "\033[0;37m|"
+//                  << "\033[0;31m" << (*it);
+//         else
+//             cout << "\033[0;37m|"
+//                  << "\033[0;37m" << (*it);
+//     cout << "\033[0;37m|";
+// }
 
-void indexToReplace(vector <pair<int, bool>> &fr, int frames, vector<int> &pageSeq, int index){
-    while (true){
-        if(fr[hand].second == false){
-            // remove the element and add the new element.
-            fr[hand] = {pageSeq[index], true};
-            hand = (hand+1) % frames;
-            misses++;
-            break;
-        }
-        fr[hand].second = false;
-        hand = (hand+1) % frames;
+pair<int, float> clockReplacement(int n, vector<int> &pageSeq, bool showContent)
+{
+    int frames[n], use[n], fault, locat, found, load, i, j;
+    for (i = 0; i < n; i++)
+    { /* Initialize all array elements to 0 */
+        frames[i] = INT_MIN;
+        use[i] = 0;
     }
-}
-
-bool find(vector <pair<int, bool>> &fr, int num){
-    for(int i = 0; i < fr.size(); i++)
-        if(fr[i].first == num)
-            return true;
-    return false;
-}
-
-void printSet(vector <pair<int, bool>> &fr, int page, bool col){
-    for(int i = 0; i < fr.size(); i++){
-        if(page == fr[i].first and col)
-            cout<<"\033[0;37m|"<<"\033[0;32m"<<fr[i].first;
-        else if(page == fr[i].first)
-            cout<<"\033[0;37m|"<<"\033[0;31m"<<fr[i].first;
-        else
-            cout<<"\033[0;37m|"<<"\033[0;37m"<<fr[i].first;
-    }
-    cout<<"\033[0;37m|";
-}
-
-pair<int, float> clockReplacement(int frames, vector <int> &pageSeq, bool showContent){
-    vector <pair<int, bool>> fr;
-    bool col;
-    int pageSeqSize = pageSeq.size();
-    for (int i = 0; i < pageSeqSize; i++){
-        int frSize = fr.size();
-         if (frSize < frames){
-            col = false;
-            misses++;
-            fr.push_back({pageSeq[i], true});
+    fault = 0;
+    locat = 0;
+    int pageseqsize = pageSeq.size();
+    for (i = 0; i < pageseqsize; i++)
+    {
+        found = 0;
+        for (j = 0; j < n; j++)
+        {
+            if (pageSeq[i] == frames[j])
+            {
+                use[j] = 1;
+                found = 1;
+            }
         }
-        else if (find(fr, pageSeq[i])){
-            col = true;
-            hits++;
+        if (found == 0)
+        {
+            do
+            { /* if bit is 0 or NULL, load in page */
+                if (use[locat] == 0)
+                {
+                    frames[locat] = pageSeq[i];
+                    use[locat] = 1;
+                    load = 1;
+                    fault++;
+                }
+                else
+                { /* reset use bit */
+                    use[locat] = 0;
+                }
+                locat++; /* Move pointer */
+
+                if (locat == n)
+                    locat = 0;
+            } while (load != 1);
         }
-        else{
-            col = false;
-            indexToReplace(fr, frames, pageSeq, i);
-        }
-        if(showContent){
+        unordered_set<int> frameSet;
+        for (int k = 0; k < n; k++)
+            if (frames[k] != INT_MIN)
+                frameSet.insert(frames[k]);
+        if (showContent)
+        {
             cout << pageSeq[i] << "--->";
-            printSet(fr, pageSeq[i], col);
-            cout << endl << endl;
+            printSet(frameSet, pageSeq[i], found);
+            cout << endl
+                 << endl;
         }
+
+        load = 0;
+        found = 0;
     }
-    float Hit_Ratio = (float)hits / (float)(hits + misses);
-    if(showContent){        
+
+    float hits = (float)pageseqsize - fault;
+    float Hit_Ratio = (float)hits / (float)(hits + fault);
+    if (showContent)
+    {
         cout << endl;
         printf("Hit Ratio: %.2f\n", Hit_Ratio);
     }
-    return {frames, Hit_Ratio};
+    return {n, Hit_Ratio};
 }
 
-// int main(){
+// int main()
+// {
 //     int frames;
 //     cin >> frames;
 //     if (frames == 0)
 //         return 0;
-//     vector <int> pageSeq = {0, 4, 1, 4, 2, 4, 3, 4, 2, 4, 0, 4, 1, 4, 2, 4, 3, 4};
+//     vector<int> pageSeq = {0, 4, 1, 4, 2, 4, 3, 4, 2, 4, 0, 4, 1, 4, 2, 4, 3, 4};
 //     cout << endl;
-//     clockReplacement(frames, pageSeq);
+//     clockReplacement(frames, pageSeq, 1);
 //     return 0;
 // }

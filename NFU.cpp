@@ -3,6 +3,7 @@
  * Description: Implementation of the Not Frequently used Page Replacement Algorithm
  * Author: Kaustuv
  */
+#include "policies.h"
 #include<iostream>
 #include<queue>
 #include<unordered_map>
@@ -53,22 +54,30 @@ void findleastCounter(unordered_map<int,int>&umap,vector<int>&q,int page)
     umap[page]=1;//include that new page in the map
     q.push_back(page);//push the page to the queue
 }
-void display(vector<int>dis)
-{
-    for(int i=0;i<dis.size();i++)
-        cout<<dis[i]<<" ";
-    cout<<endl;
+void printSet(unordered_map<int,int>&fr, int page, bool col){
+   // unordered_map<int,string> :: iterator it;
+    for(auto it : fr)
+        if(page == it.first and col)
+            cout<<"\033[0;37m|"<<"\033[0;32m"<<(it.first);
+        else if(page == it.first)
+            cout<<"\033[0;37m|"<<"\033[0;31m"<<(it.first);
+        else
+            cout<<"\033[0;37m|"<<"\033[0;37m"<<(it.first);
+    cout<<"\033[0;37m|";
 }
-int nfuPageReplacement(int frames,vector<int>page)
+pair<int,float> nfuPageReplacement(int frames,vector<int>page,bool showContent)
 {
     unordered_map<int,int>umap;
     vector<int>q;
-    int pagefault=0;
+    int miss=0;
+    int hit=0;
+    bool col=true;
     for(int i=0;i<page.size();i++)
     {
         if(umap.find(page[i])==umap.end())//not find
         {
-            pagefault++;
+            miss++;
+            col=false;
             if(q.size()!=frames)
             {
                 q.push_back(page[i]);
@@ -82,25 +91,21 @@ int nfuPageReplacement(int frames,vector<int>page)
         }
         else{
             umap[page[i]]++;//if finds increment the counter by one
+            hit++;
+            col=true;
         }
-        cout<<page[i]<<"--->";
-        display(q);
+        if(showContent)
+        {
+            cout<<page[i]<<"--->";
+            printSet(umap,page[i],col);
+            cout<<endl<<endl;
+        }
     }
-    return pagefault;
-}
-int main()
-{
-    int frames,pageSeq;
-    cin>>frames>>pageSeq;//4 21
-    //cin>>frames;
-    vector<int>pages(pageSeq);//={7,0,1,2,0,3,0,4,2,3,0,3,2};
-    int temp;
-    for(int i=0;i<pageSeq;i++)
+    float Hit_Ratio = (float)hit/(float)(hit+miss);
+    if(showContent)
     {
-    	cin>>temp;
-    	pages[i] = temp;
+        cout<<endl;
+        printf("Hit Ratio: %.2f\n", Hit_Ratio);
     }
-    //int numPageFaluts = fifoPagereplacement(frames,pageSeq);
-    int numPageFaluts = nfuPageReplacement(frames,pages);
-    cout<<numPageFaluts<<endl;
+    return {frames,Hit_Ratio};
 }
