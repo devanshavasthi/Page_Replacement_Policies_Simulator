@@ -63,6 +63,7 @@ void write_csv_all(string name, pair<int, float> temp, string policy){
 
 void policy_menu(){
 
+    cout << endl;
     cout << "1. Random policy." << endl;
     cout << "2. Optimal policy." << endl;
     cout << "3. NRU policy." << endl;
@@ -276,11 +277,11 @@ void run_all(){
         temp = optimalReplacement(frames, pageSeq, 0);
         write_csv_all("graph/all.csv", temp, "optimal");
         
-        // temp = nru(frames, pageSeq, 0);
-        // write_csv_all("graph/all.csv", temp, "nru");
+        temp = nru(frames, pageSeq, 0);
+        write_csv_all("graph/all.csv", temp, "nru");
         
-        // temp = fifoPagereplacement(frames, pageSeq, 0);
-        // write_csv_all("graph/all.csv", temp, "fifo");
+        temp = fifoPagereplacement(frames, pageSeq, 0);
+        write_csv_all("graph/all.csv", temp, "fifo");
         
         temp = FIFO2Replacement(frames, pageSeq, 0);
         write_csv_all("graph/all.csv", temp, "fifo2");
@@ -288,21 +289,25 @@ void run_all(){
         temp = clockReplacement(frames, pageSeq, 0);
         write_csv_all("graph/all.csv", temp, "clock");
         
-        // temp = lru(pageSeq, frames, 0);
-        // write_csv_all("graph/all.csv", temp, "lru");
+        temp = lru(pageSeq, frames, 0);
+        write_csv_all("graph/all.csv", temp, "lru");
 
-        // temp = nfuPageReplacement(frames, pageSeq, 0);
-        // write_csv_all("graph/all.csv", temp, "nfu");
+        temp = nfuPageReplacement(frames, pageSeq, 0);
+        write_csv_all("graph/all.csv", temp, "nfu");
         
-        //     temp = randomReplacement(frames, pageSeq, 0);
-        // write_csv_all("graph/all.csv", temp, "random");
+        temp = workingset(pageSeq, frames, 0);
+        write_csv_all("graph/all.csv", temp, "workingset");
         
-        //     temp = randomReplacement(frames, pageSeq, 0);
-        // write_csv_all("graph/all.csv", temp, "random");
+        temp = aging(frames, pageSeq, 0);
+        write_csv_all("graph/all.csv", temp, "aging");
         
         temp = wsclock(frames, pageSeq, 0);
         write_csv_all("graph/all.csv", temp, "wsclock");
     }
+    string x = "python3 graph/print_all.py";
+    system(x.c_str());
+    x = "xdg-open graph/policy.png";
+    system(x.c_str());
 
 }
 
@@ -310,6 +315,7 @@ int main(){
 
     // Main menu of the simulator
     while(true){
+        cout << endl;
         cout << "WELCOME TO PAGE REPLACEMENT SIMULATOR" << endl;
         cout << "1. Simulate single policy." << endl;
         cout << "2. Simulate all policies." << endl;
