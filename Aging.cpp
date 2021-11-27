@@ -5,49 +5,53 @@
 
 using namespace std;
 
-void print_stuff(unordered_map<int,string>&fr, int page, bool col){
-   // unordered_map<int,string> :: iterator it;
-    for(auto it : fr)
-        if(page == it.first and col)
-            cout<<"\033[0;37m|"<<"\033[0;32m"<<(it.first);
-        else if(page == it.first)
-            cout<<"\033[0;37m|"<<"\033[0;31m"<<(it.first);
+void print_stuff(unordered_map<int, string> &fr, int page, bool col)
+{
+    // unordered_map<int,string> :: iterator it;
+    for (auto it : fr)
+        if (page == it.first and col)
+            cout << "\033[0;37m|"
+                 << "\033[0;32m" << (it.first);
+        else if (page == it.first)
+            cout << "\033[0;37m|"
+                 << "\033[0;31m" << (it.first);
         else
-            cout<<"\033[0;37m|"<<"\033[0;37m"<<(it.first);
-    cout<<"\033[0;37m|";
+            cout << "\033[0;37m|"
+                 << "\033[0;37m" << (it.first);
+    cout << "\033[0;37m|";
 }
 
 int to_decimal(string n)
 {
     stringstream geek(n);
-    int x=0;
+    int x = 0;
     geek >> x;
     int num = x;
     int dec_value = 0;
 
     int base = 1;
- 
+
     int temp = num;
-    while (temp) {
+    while (temp)
+    {
         int last_digit = temp % 10;
         temp = temp / 10;
- 
+
         dec_value += last_digit * base;
- 
+
         base = base * 2;
     }
- 
+
     // cout<<dec_value<<endl;
     return dec_value;
 }
-
 
 string right_shift(string num)
 {
     string s1;
     s1.push_back('0');
-
-    for(int i=0;i<num.size()-1;i++)
+    int numsize = num.size();
+    for (int i = 0; i < numsize - 1; i++)
     {
         s1.push_back(num[i]);
     }
@@ -55,41 +59,42 @@ string right_shift(string num)
     return s1;
 }
 
-pair<int,float> aging(int frames, vector<int> &v, bool toshowContent)
+pair<int, float> aging(int frames, vector<int> &v, bool toshowContent)
 {
-    unordered_map<int,string> stuff;
+    unordered_map<int, string> stuff;
     vector<int> in_order;
     // int page_fault = 0;
 
-    int shift=0;
-    int hit=0;
-    int miss=0;
+    int shift = 0;
+    int hit = 0;
+    int miss = 0;
     int n = frames;
     bool col = false;
-    for(int i=0;i<v.size();i++)
+    int vsize = v.size();
+    for (int i = 0; i < vsize; i++)
     {
         shift++;
-        if(stuff.find(v[i]) == stuff.end() && frames > 0)
+        if (stuff.find(v[i]) == stuff.end() && frames > 0)
         {
             col = false;
             frames--;
-            stuff.insert({v[i],"10000000"});
+            stuff.insert({v[i], "10000000"});
             miss++;
             in_order.push_back(v[i]);
         }
 
-        else if(stuff.find(v[i]) == stuff.end())
+        else if (stuff.find(v[i]) == stuff.end())
         {
             miss++;
             col = false;
             int page = in_order[0];
             // int bit = to_decimal(stuff[in_order[0]]);
             int bit = stoi(stuff[in_order[0]]);
-
-            for(int j=1;j<in_order.size();j++)
+            int inordersize = in_order.size();
+            for (int j = 1; j < inordersize; j++)
             {
                 int num = stoi(stuff[in_order[j]]);
-                if(num < bit)
+                if (num < bit)
                 {
                     bit = num;
                     page = in_order[j];
@@ -97,15 +102,15 @@ pair<int,float> aging(int frames, vector<int> &v, bool toshowContent)
             }
 
             stuff.erase(page);
-            stuff.insert({v[i],"10000000"});
+            stuff.insert({v[i], "10000000"});
             // page_fault++;
 
-            for(int j=0;j<in_order.size();j++)
+            for (int j = 0; j < inordersize; j++)
             {
 
-                if(in_order[j] == page)
+                if (in_order[j] == page)
                 {
-                    in_order.erase(in_order.begin()+j);
+                    in_order.erase(in_order.begin() + j);
                     in_order.push_back(v[i]);
                     break;
                 }
@@ -120,52 +125,52 @@ pair<int,float> aging(int frames, vector<int> &v, bool toshowContent)
             col = true;
             string str = stuff[v[i]];
 
-            if(str[0] == '0')
+            if (str[0] == '0')
             {
                 str[0] = '1';
- 
+
                 stuff[v[i]] = str;
             }
-
-            for(int j=0;j<in_order.size();j++)
+            int inordersize = in_order.size();
+            for (int j = 0; j < inordersize; j++)
             {
-                if(in_order[j] == v[i])
+                if (in_order[j] == v[i])
                 {
-                    in_order.erase(in_order.begin()+j);
+                    in_order.erase(in_order.begin() + j);
                     in_order.push_back(v[i]);
                     break;
                 }
             }
-
         }
 
-        if(shift % n == 0)
+        if (shift % n == 0)
         {
             // for(auto it : stuff)
             // {
             //     string num = right_shift(it.second);
             //     stuff[it.first] = num;
             // }
-            for(int j=0;j<in_order.size();j++)
+            int inordersize = in_order.size();
+            for (int j = 0; j < inordersize; j++)
             {
                 string num = right_shift(stuff[in_order[j]]);
                 stuff[in_order[j]] = num;
             }
-
         }
 
-        if(toshowContent)
+        if (toshowContent)
         {
-        cout<<v[i]<<"--->";
-        print_stuff(stuff,v[i],col);
-        cout<<endl<<endl;
+            cout << v[i] << "--->";
+            print_stuff(stuff, v[i], col);
+            cout << endl
+                 << endl;
         }
     }
 
-    float Hit_Ratio = (float)hit/(float)(hit+miss);
-    if(toshowContent)
+    float Hit_Ratio = (float)hit / (float)(hit + miss);
+    if (toshowContent)
     {
-        cout<<endl;
+        cout << endl;
         printf("Hit Ratio: %.2f\n", Hit_Ratio);
     }
 
@@ -174,8 +179,6 @@ pair<int,float> aging(int frames, vector<int> &v, bool toshowContent)
     // cout<<miss;
     return {n, Hit_Ratio};
 }
-
-
 
 // int main()
 // {
